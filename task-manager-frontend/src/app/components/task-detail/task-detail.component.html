@@ -1,0 +1,11 @@
+<div *ngIf="loading">Loading...</div>
+<div *ngIf="error">{{ error }}</div>
+
+<div *ngIf="task">
+  <h2>Task Details</h2>
+  <p>Details for selected task will appear here.</p>
+  <p><strong>ID:</strong> {{ task.id }}</p>
+  <p><strong>Title:</strong> {{ task.title }}</p>
+  <p><strong>Description:</strong> {{ task.description }}</p>
+  <p><strong>Completed:</strong> {{ task.completed ? 'Yes' : 'No' }}</p>
+</div>
