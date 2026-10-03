@@ -1,0 +1,7 @@
+target
+.git
+.github
+.idea
+.vscode
+task-manager-frontend/node_modules
+task-manager-frontend/dist
