@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TaskService, Task } from '../../services/task.service';
+
+import { Task } from '../../models/task.model';
+import { TaskService } from '../../services/task.service';
 
 @Component({
   selector: 'app-task-list',
@@ -18,7 +20,7 @@ export class TaskListComponent implements OnInit {
   loading = false;
   error: string | null = null;
 
-  constructor(private taskService: TaskService) {}
+  constructor(private readonly taskService: TaskService) {}
 
   ngOnInit(): void {
     this.loadTasks();
@@ -37,13 +39,14 @@ export class TaskListComponent implements OnInit {
   toggleForm(): void {
     this.showForm = !this.showForm;
     if (!this.showForm) {
-      this.newTask = this.getEmptyTask();
-      this.editingTask = null;
+      this.resetForm();
     }
   }
 
   loadTasks(): void {
     this.loading = true;
+    this.error = null;
+
     this.taskService.getTasks().subscribe({
       next: (data) => {
         this.tasks = data;
@@ -59,17 +62,17 @@ export class TaskListComponent implements OnInit {
   submitForm(): void {
     if (this.editingTask) {
       this.updateTask();
-    } else {
-      this.createTask();
+      return;
     }
+
+    this.createTask();
   }
 
   createTask(): void {
     this.taskService.createTask(this.newTask).subscribe({
       next: (createdTask) => {
-        this.tasks.push(createdTask);
-        this.newTask = this.getEmptyTask();
-        this.showForm = false;
+        this.tasks = [...this.tasks, createdTask];
+        this.resetForm();
         this.error = null;
       },
       error: () => {
@@ -79,15 +82,14 @@ export class TaskListComponent implements OnInit {
   }
 
   updateTask(): void {
-    if (!this.editingTask?.id) return;
+    if (!this.editingTask?.id) {
+      return;
+    }
 
     this.taskService.updateTask(this.editingTask.id, this.newTask).subscribe({
       next: (updatedTask) => {
-        const index = this.tasks.findIndex((t) => t.id === updatedTask.id);
-        if (index !== -1) {
-          this.tasks[index] = updatedTask;
-        }
-        this.cancelEdit();
+        this.replaceTask(updatedTask);
+        this.resetForm();
         this.error = null;
       },
       error: () => {
@@ -99,7 +101,7 @@ export class TaskListComponent implements OnInit {
   deleteTask(taskId: number): void {
     this.taskService.deleteTask(taskId).subscribe({
       next: () => {
-        this.tasks = this.tasks.filter((t) => t.id !== taskId);
+        this.tasks = this.tasks.filter((task) => task.id !== taskId);
       },
       error: () => {
         this.error = 'Failed to delete task.';
@@ -108,12 +110,22 @@ export class TaskListComponent implements OnInit {
   }
 
   toggleComplete(task: Task): void {
-    const updatedTask = { ...task, completed: !task.completed };
-    this.taskService.updateTask(task.id!, updatedTask).subscribe({
-      next: (updated) => {
-        const index = this.tasks.findIndex((t) => t.id === updated.id);
-        if (index !== -1) this.tasks[index] = updated;
-      },
+    if (!task.id) {
+      return;
+    }
+
+    if (task.completed) {
+      this.taskService.updateTask(task.id, { ...task, completed: false }).subscribe({
+        next: (updatedTask) => this.replaceTask(updatedTask),
+        error: () => {
+          this.error = 'Failed to update task status.';
+        }
+      });
+      return;
+    }
+
+    this.taskService.completeTask(task.id).subscribe({
+      next: (updatedTask) => this.replaceTask(updatedTask),
       error: () => {
         this.error = 'Failed to update task status.';
       }
@@ -127,6 +139,16 @@ export class TaskListComponent implements OnInit {
   }
 
   cancelEdit(): void {
+    this.resetForm();
+  }
+
+  private replaceTask(updatedTask: Task): void {
+    this.tasks = this.tasks.map((task) =>
+      task.id === updatedTask.id ? updatedTask : task
+    );
+  }
+
+  private resetForm(): void {
     this.editingTask = null;
     this.newTask = this.getEmptyTask();
     this.showForm = false;
