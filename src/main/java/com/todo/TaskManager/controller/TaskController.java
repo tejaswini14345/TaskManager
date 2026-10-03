@@ -2,13 +2,14 @@ package com.todo.TaskManager.controller;
 
 import com.todo.TaskManager.model.Task;
 import com.todo.TaskManager.service.TaskService;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -17,37 +18,46 @@ public class TaskController {
 
     private static final Logger logger = LoggerFactory.getLogger(TaskController.class);
 
-    @Autowired
-    private TaskService taskService;
+    private final TaskService taskService;
+
+    public TaskController(TaskService taskService) {
+        this.taskService = taskService;
+    }
 
     @GetMapping
-    public List<Task> getAllTasks() {
-        return taskService.getAllTasks();
+    public ResponseEntity<List<Task>> getAllTasks() {
+        return ResponseEntity.ok(taskService.getAllTasks());
     }
 
     @GetMapping("/{id}")
-    public Optional<Task> getTaskById(@PathVariable Long id) {
-        return taskService.getTaskById(id);
+    public ResponseEntity<Task> getTaskById(@PathVariable Long id) {
+        return ResponseEntity.ok(taskService.getTaskById(id));
     }
 
     @PostMapping
-    public Task createTask(@RequestBody Task task) {
-        logger.info("Received task to create: {}", task);  // Logging the incoming task
-        return taskService.createTask(task);
+    public ResponseEntity<Task> createTask(@Valid @RequestBody Task task) {
+        logger.info("Creating task with title: {}", task.getTitle());
+        Task created = taskService.createTask(task);
+        return ResponseEntity
+                .created(URI.create("/api/tasks/" + created.getId()))
+                .body(created);
     }
 
     @PutMapping("/{id}")
-    public Task updateTask(@PathVariable Long id, @RequestBody Task updatedTask) {
-        return taskService.updateTask(id, updatedTask);
+    public ResponseEntity<Task> updateTask(
+            @PathVariable Long id,
+            @Valid @RequestBody Task updatedTask) {
+        return ResponseEntity.ok(taskService.updateTask(id, updatedTask));
     }
 
     @DeleteMapping("/{id}")
-    public void deleteTask(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         taskService.deleteTask(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/complete")
-    public Task markTaskAsComplete(@PathVariable Long id) {
-        return taskService.markTaskAsComplete(id);
+    public ResponseEntity<Task> markTaskAsComplete(@PathVariable Long id) {
+        return ResponseEntity.ok(taskService.markTaskAsComplete(id));
     }
 }
