@@ -1,6 +1,14 @@
 package com.todo.TaskManager.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 import java.time.LocalDate;
 
 @Entity
@@ -11,13 +19,20 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Title is required")
+    @Size(max = 150, message = "Title must be 150 characters or fewer")
     private String title;
-    private String description;
-    private boolean completed;
-    private LocalDate dueDate;
-    private String priority;
 
-    // Getters and setters
+    @Size(max = 1000, message = "Description must be 1000 characters or fewer")
+    private String description;
+
+    private boolean completed;
+
+    @FutureOrPresent(message = "Due date cannot be in the past")
+    private LocalDate dueDate;
+
+    @Size(max = 30, message = "Priority must be 30 characters or fewer")
+    private String priority;
 
     public Long getId() {
         return id;
@@ -72,7 +87,6 @@ public class Task {
         return "Task{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
-                ", description='" + description + '\'' +
                 ", completed=" + completed +
                 ", dueDate=" + dueDate +
                 ", priority='" + priority + '\'' +
