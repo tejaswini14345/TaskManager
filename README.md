@@ -1,86 +1,153 @@
-**# TaskManager**
-This is a Task Manager web app I built using Spring Boot (Java) for the backend and Angular for the frontend. It’s a simple app where you can create tasks, view a list of tasks, and check details of a task.  The backend handles APIs and database operations, while the frontend gives a clean UI to interact with tasks.
-Tech Stack I Used
-**Backend (Java):**
+# Task Manager
 
-Spring Boot, Spring Data JPA, SQL Server
+A full-stack task management application built with **Java, Spring Boot, Angular, and SQL Server**. The project demonstrates a clean frontend-to-backend workflow using REST APIs, Spring Data JPA, and a layered backend architecture.
 
-**Frontend (Angular):**
-Angular 16+, TypeScript, HTML, CSS
+## Features
 
+- Create, view, update, and delete tasks
+- Mark tasks as complete
+- View individual task details
+- Angular frontend connected to a Spring Boot REST API
+- SQL Server persistence with Spring Data JPA
+- Backend request logging
+- CORS configuration for local Angular development
 
-I have created one REST API using Spring Boot starting with the spring intializer to setup the project.
-I choose Maven as a build Tool,Java as a language, and selected SpringBoot version 3.2.3.. In the project setup , I included essential metadata like Group,Artifact, Package Name, Description , and set the packaging to the JAR files.The dependencies I added were Spring Web, Spring Data JPA, Spring security, Spring Boot Actuator, Spring Cloud and  Spring Batch.After generating and downloading the project files,I extracted the ZIP files and opened it in my IDE.
-To configure the database, I updated the application.properties file with the necessary details, including the database URL, Username, Password, and Hibernate dialect. I then organized the project structure by creating packages for domain entities, repositories, service and controllers. For the domain layer, I defined entity classes that map to database 
-table using JPA annotations like @Entity, @Table, @Id, and @GeneratedValue. I also included relationships between entities using @One to Many and @Many to One. 
-In the repository layer, I created interface extending JPA Repository to handle CRUD operations, using annotations such as @Repository and @EnableJPA Repositories. The service layer contained the business logic, implemented in service classes annotated with @Service, and dependencies were injected using @Autowired. The Controller layer 
-managed the API endpoints, defined in classes annotated with @RestController and @RequestMapping , with specific HTTP methods mapped using @GetMapping, @PostMapping, @PutMapping, and @Delete Mapping. 
- I used @ControllerAdvice and @ExceptionHandler to define global handlers for di erent types of exceptions. To secure 
- API endpoints, I implemented Spring Security with OAuth2 Client Credentials Workflow and JWT Authentication.
+## Tech Stack
 
-How the Project is Organized
-This project has two main parts:
-**Backend (Spring Boot):**
-Handles API requests.
-Saves data into the database.
-Contains models, services, repositories, and controllers.
+### Backend
+- Java 17
+- Spring Boot 3.5.3
+- Spring Web
+- Spring Data JPA
+- Maven
+- Lombok
+- SQL Server
 
-**Frontend (Angular):**
-Has components like Task Create, Task List, and Task Detail.
-Calls backend APIs using services.
-Displays data in a nice UI.
-**
-My Folder Structure :-**
-TASKMANAGER/
-├── Backend Code (Spring Boot)
-│   ├── model/         --> Task.java (Represents Task data)
-│   ├── repository/    --> TaskRepository (Database Access)
-│   ├── service/       --> TaskService (Business Logic)
-│   └── controller/    --> TaskController (API Endpoints)
-│
-├── Frontend Code (Angular)
-│   ├── components/
-│   │   ├── task-create/
-│   │   ├── task-list/
-│   │   └── task-detail/
-│   ├── services/      --> task.service.ts (Calls Backend APIs)
-│   ├── models/        --> task.model.ts (Task Structure)
-│   └── main app files (app.component.ts, app.routes.ts, etc.)
+### Frontend
+- Angular
+- TypeScript
+- HTML
+- CSS
 
+## Architecture
 
+```text
+Angular UI
+    |
+    | HTTP / REST
+    v
+Spring Boot Controller
+    |
+    v
+Service Layer
+    |
+    v
+Repository Layer (Spring Data JPA)
+    |
+    v
+SQL Server
+```
 
-**How to Run This Project?**
-1. Backend (Spring Boot):
-we need to right click on the TaskManagerApplication.java and click Run as Java
-And we aslo need to make sure the Backend is Running
-The Backend port we are using 8081
+The repository contains both the Spring Boot backend and the Angular frontend:
 
-2.Frontend (Angular):
-Go to the task-manager-frontend folder.
-Go to the folder inside the front end folder named as cd Task-Manger-Frontend
-and then ng serve
-Our application will ne running on :- http://localhost:4200
+```text
+TaskManager/
+├── src/                       # Spring Boot backend
+│   └── main/java/.../
+│       ├── controller/
+│       ├── model/
+│       ├── repository/
+│       └── service/
+├── task-manager-frontend/     # Angular frontend
+├── pom.xml
+└── README.md
+```
 
-**What Can This App Do?**
-Add a new task with title and description.
-View a list of all tasks.
-Click on a task to view detailed info.
-Simple and clean UI using Angular components.
+## REST API
 
-<img width="1919" height="1031" alt="image" src="https://github.com/user-attachments/assets/1a10a3f3-8539-429c-b7d1-9919a413edc0" />
+Base URL: `http://localhost:8081/api/tasks`
 
-<img width="1918" height="1031" alt="image" src="https://github.com/user-attachments/assets/7efd0c3f-79fd-4fbb-a80f-615e82625aa9" />
-Creating a Task
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| GET | `/api/tasks` | Get all tasks |
+| GET | `/api/tasks/{id}` | Get a task by ID |
+| POST | `/api/tasks` | Create a task |
+| PUT | `/api/tasks/{id}` | Update a task |
+| DELETE | `/api/tasks/{id}` | Delete a task |
+| PATCH | `/api/tasks/{id}/complete` | Mark a task as complete |
 
-<img width="1910" height="1032" alt="image" src="https://github.com/user-attachments/assets/a32d84b1-3062-43bc-9469-c5239317ab4a" />
-Updating a Task
+## Running the Project
 
-<img width="1300" height="733" alt="image" src="https://github.com/user-attachments/assets/f24af43b-f56b-425f-934e-ce0af45e0abe" />
-Database Table looks like
+### Prerequisites
 
+- Java 17
+- Node.js / npm
+- Angular CLI
+- SQL Server
 
-**Why I Made This?**
-I built this project to learn full-stack development using Spring Boot and Angular. This helped me understand how frontend and backend connect using REST APIs, and how to structure code cleanly.
+The current backend configuration expects a local SQL Server instance on port `1433`, database name `TaskManager`, and Windows integrated authentication. Update `src/main/resources/application.properties` if your environment uses different credentials or authentication.
 
+### Start the backend
 
+From the repository root:
 
+```bash
+./mvnw spring-boot:run
+```
+
+On Windows:
+
+```powershell
+mvnw.cmd spring-boot:run
+```
+
+The backend runs on:
+
+```text
+http://localhost:8081
+```
+
+### Start the frontend
+
+```bash
+cd task-manager-frontend
+npm install
+ng serve
+```
+
+Then open:
+
+```text
+http://localhost:4200
+```
+
+## Screenshots
+
+### Task List
+
+<img width="1919" height="1031" alt="Task list" src="https://github.com/user-attachments/assets/1a10a3f3-8539-429c-b7d1-9919a413edc0" />
+
+### Create Task
+
+<img width="1918" height="1031" alt="Create task" src="https://github.com/user-attachments/assets/7efd0c3f-79fd-4fbb-a80f-615e82625aa9" />
+
+### Update Task
+
+<img width="1910" height="1032" alt="Update task" src="https://github.com/user-attachments/assets/a32d84b1-3062-43bc-9469-c5239317ab4a" />
+
+### SQL Server Data
+
+<img width="1300" height="733" alt="SQL Server task table" src="https://github.com/user-attachments/assets/f24af43b-f56b-425f-934e-ce0af45e0abe" />
+
+## What This Project Demonstrates
+
+This project demonstrates practical full-stack development with a Java/Spring backend and Angular frontend, including REST API design, CRUD operations, persistence with JPA, SQL Server integration, and separation of controller, service, and repository responsibilities.
+
+## Future Improvements
+
+- Add DTOs and request validation
+- Add centralized exception handling
+- Add automated API and service tests
+- Add authentication and authorization
+- Containerize the application with Docker
+- Add CI/CD with GitHub Actions
