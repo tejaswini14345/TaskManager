@@ -1,10 +1,10 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { NgForm, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
-import { TaskService } from 'app/services/task.service';
-import { Task } from 'app/models/task.model';
+import { Task } from '../../models/task.model';
+import { TaskService } from '../../services/task.service';
 
 @Component({
   selector: 'app-task-create',
@@ -22,12 +22,30 @@ export class TaskCreateComponent {
     priority: ''
   };
 
-  constructor(private taskService: TaskService, private router: Router) {}
+  submitting = false;
+  error: string | null = null;
+
+  constructor(
+    private readonly taskService: TaskService,
+    private readonly router: Router
+  ) {}
 
   onSubmit(): void {
-    this.taskService.createTask(this.task).subscribe(() => {
-      alert('Task created successfully!');
-      this.router.navigate(['/tasks']);
+    if (this.submitting) {
+      return;
+    }
+
+    this.submitting = true;
+    this.error = null;
+
+    this.taskService.createTask(this.task).subscribe({
+      next: () => {
+        this.router.navigate(['/tasks']);
+      },
+      error: () => {
+        this.error = 'Unable to create the task. Please review the form and try again.';
+        this.submitting = false;
+      }
     });
   }
 }
