@@ -2,22 +2,15 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-export interface Task {
-  id?: number;
-  title: string;
-  description: string;
-  completed: boolean;
-  dueDate: string;
-  priority: string;
-}
+import { Task } from '../models/task.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TaskService {
-  private apiUrl = 'http://localhost:8081/api/tasks'; // ✅ FIXED: correct port
+  private readonly apiUrl = 'http://localhost:8081/api/tasks';
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   getTasks(): Observable<Task[]> {
     return this.http.get<Task[]>(this.apiUrl);
@@ -33,6 +26,10 @@ export class TaskService {
 
   updateTask(id: number, task: Task): Observable<Task> {
     return this.http.put<Task>(`${this.apiUrl}/${id}`, task);
+  }
+
+  completeTask(id: number): Observable<Task> {
+    return this.http.patch<Task>(`${this.apiUrl}/${id}/complete`, {});
   }
 
   deleteTask(id: number): Observable<void> {
